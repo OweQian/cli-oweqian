@@ -1,0 +1,22 @@
+{
+  "name": "@oweqian/init",
+  "version": "0.0.0",
+  "description": "init command",
+  "author": "qian wang <1510106069@qq.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "node ./__tests__/init.test.js"
+  },
+  "dependencies": {
+    "@oweqian/command": "^0.0.0"
+  }
+}
