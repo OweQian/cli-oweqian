@@ -1,6 +1,7 @@
 "use strict";
 
 const Command = require("@oweqian/command");
+const { log } = require("@oweqian/utils");
 
 class InitCommand extends Command {
   get command() {
@@ -16,7 +17,7 @@ class InitCommand extends Command {
   }
 
   action([name, opts]) {
-    console.log("init", name, opts);
+    log.verbose("init", name, opts);
   }
 
   preAction() {

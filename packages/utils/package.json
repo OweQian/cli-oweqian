@@ -1,7 +1,7 @@
 {
-  "name": "@oweqian/init",
+  "name": "@oweqian/utils",
   "version": "0.0.0",
-  "description": "init command",
+  "description": "cli-oweqian utils",
   "author": "qian wang <1510106069@qq.com>",
   "homepage": "",
   "license": "ISC",
@@ -14,10 +14,9 @@
     "lib"
   ],
   "scripts": {
-    "test": "node ./__tests__/init.test.js"
+    "test": "node ./__tests__/utils.test.js"
   },
   "dependencies": {
-    "@oweqian/command": "^0.0.0",
-    "@oweqian/utils": "^0.0.0"
+    "npmlog": "^7.0.1"
   }
 }

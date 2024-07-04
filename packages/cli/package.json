@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "@oweqian/init": "^0.0.0",
+    "@oweqian/utils": "^0.0.0",
     "commander": "^12.1.0",
-    "import-local": "^3.1.0",
-    "npmlog": "^7.0.1"
+    "import-local": "^3.1.0"
   }
 }

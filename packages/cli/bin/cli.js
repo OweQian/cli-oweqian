@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const importLocal = require("import-local");
-const log = require("npmlog");
 const entry = require("../lib/index");
+const { log } = require("@oweqian/utils");
 
 if (importLocal(__filename)) {
   log.info("cli", "使用本次 cli-oweqian 版本");

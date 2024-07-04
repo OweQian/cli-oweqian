@@ -1,10 +1,12 @@
 const commander = require("commander");
 const createInitCommand = require("@oweqian/init");
+const { log } = require("@oweqian/utils");
 
 const { program } = commander;
 const pkg = require("../package.json");
 
 module.exports = function (args) {
+  log.info("version", pkg.version);
   program
     .name(Object.keys(pkg.bin)[0])
     .usage("<command> [options]")
