@@ -1,5 +1,7 @@
 const commander = require("commander");
 const semver = require("semver");
+const chalk = require("chalk");
+
 const createInitCommand = require("@oweqian/init");
 const { log, isDebug } = require("@oweqian/utils");
 
@@ -11,7 +13,9 @@ const LOWEST_NODE_VERSION = "14.0.0";
 function checkNodeVersion() {
   if (!semver.gte(process.version, LOWEST_NODE_VERSION)) {
     throw new Error(
-      `cli-oweqian 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`
+      chalk.red(
+        `cli-oweqian 需要安装 ${LOWEST_NODE_VERSION} 以上版本的 Node.js`
+      )
     );
   }
 }
