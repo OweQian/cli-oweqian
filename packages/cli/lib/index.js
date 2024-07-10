@@ -1,12 +1,16 @@
-const commander = require("commander");
-const semver = require("semver");
-const chalk = require("chalk");
+import path from "node:path";
+import { program } from "commander";
+import semver from "semver";
+import chalk from "chalk";
+import fse from "fs-extra";
 
-const createInitCommand = require("@oweqian/init");
-const { log, isDebug } = require("@oweqian/utils");
+import createInitCommand from "@oweqian/init";
+import { log, isDebug } from "@oweqian/utils";
+import { dirname } from "dirname-filename-esm";
 
-const { program } = commander;
-const pkg = require("../package.json");
+const __dirname = dirname(import.meta);
+const pkgPath = path.resolve(__dirname, "../package.json");
+const pkg = fse.readJSONSync(pkgPath);
 
 const LOWEST_NODE_VERSION = "14.0.0";
 
@@ -33,7 +37,7 @@ process.on("uncaughtException", (e) => {
   }
 });
 
-module.exports = function (args) {
+export default function (args) {
   log.info("version", pkg.version);
   program
     .name(Object.keys(pkg.bin)[0])
@@ -53,4 +57,4 @@ module.exports = function (args) {
   createInitCommand(program);
 
   program.parse(process.argv);
-};
+}

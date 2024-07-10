@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
-const importLocal = require("import-local");
-const entry = require("../lib/index");
-const { log } = require("@oweqian/utils");
+import importLocal from "import-local";
+import entry from "../lib/index.js";
+import { filename } from "dirname-filename-esm";
+import { log } from "@oweqian/utils";
+
+const __filename = filename(import.meta);
 
 if (importLocal(__filename)) {
   log.info("cli", "使用本次 cli-oweqian 版本");

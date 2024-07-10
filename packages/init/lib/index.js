@@ -1,7 +1,7 @@
 "use strict";
 
-const Command = require("@oweqian/command");
-const { log } = require("@oweqian/utils");
+import Command from "@oweqian/command";
+import { log } from "@oweqian/utils";
 
 class InitCommand extends Command {
   get command() {
@@ -33,4 +33,4 @@ function Init(instance) {
   return new InitCommand(instance);
 }
 
-module.exports = Init;
+export default Init;

@@ -19,5 +19,6 @@
   "dependencies": {
     "@oweqian/command": "^0.0.0",
     "@oweqian/utils": "^0.0.0"
-  }
+  },
+  "type": "module"
 }
