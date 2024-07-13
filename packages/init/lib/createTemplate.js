@@ -1,3 +1,5 @@
+import path from "node:path";
+import { homedir } from "node:os";
 import { makeList, log, makeInput, getLatestVersion } from "@oweqian/utils";
 
 const ADD_TYPE_PROJECT = "project";
@@ -26,6 +28,7 @@ const ADD_TYPE = [
     value: ADD_TYPE_PAGE,
   },
 ];
+const TEMP_HOME = ".cli-oweqian";
 
 // 获取创建类型
 function getAddType() {
@@ -41,6 +44,12 @@ function getAddName() {
   return makeInput({
     message: "请输入项目名称",
     defaultValue: "",
+    validate: (v) => {
+      if (v.length > 0) {
+        return true;
+      }
+      return "项目名称必须输入";
+    },
   });
 }
 
@@ -52,6 +61,11 @@ function getAddTemplate() {
   });
 }
 
+// 安装缓存目录
+function makeTargetPath() {
+  console.log(homedir());
+  return path.resolve(`${homedir()}/${TEMP_HOME}`, "addTemplate");
+}
 async function createTemplate(name, opts) {
   const addType = await getAddType();
   log.verbose("addType", addType);
@@ -66,10 +80,12 @@ async function createTemplate(name, opts) {
     const latestVersion = await getLatestVersion(selectedTemplate.npmName);
     log.verbose("latestVersion", latestVersion);
     selectedTemplate.version = latestVersion;
+    const targetPath = makeTargetPath();
     return {
       type: addType,
       name: addName,
       template: selectedTemplate,
+      targetPath,
     };
   }
 }
