@@ -1,4 +1,4 @@
-import { makeList, log } from "@oweqian/utils";
+import { makeList, log, makeInput } from "@oweqian/utils";
 
 const ADD_TYPE_PROJECT = "project";
 const ADD_TYPE_PAGE = "page";
@@ -33,9 +33,22 @@ function getAddType() {
     defaultValue: ADD_TYPE_PROJECT,
   });
 }
+
+// 获取项目名称
+function getAddName() {
+  return makeInput({
+    message: "请输入项目名称",
+    defaultValue: "",
+  });
+}
+
 async function createTemplate(name, opts) {
   const addType = await getAddType();
   log.verbose("addType", addType);
+  if (addType === ADD_TYPE_PROJECT) {
+    const addName = await getAddName();
+    log.verbose("addName", addName);
+  }
 }
 
 export default createTemplate;
