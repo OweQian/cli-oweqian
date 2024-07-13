@@ -1,4 +1,4 @@
-import { makeList, log, makeInput } from "@oweqian/utils";
+import { makeList, log, makeInput, getLatestVersion } from "@oweqian/utils";
 
 const ADD_TYPE_PROJECT = "project";
 const ADD_TYPE_PAGE = "page";
@@ -63,6 +63,9 @@ async function createTemplate(name, opts) {
     const selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
     log.verbose("selectedTemplate", selectedTemplate);
     // 获取最新版本号
+    const latestVersion = await getLatestVersion(selectedTemplate.npmName);
+    log.verbose("latestVersion", latestVersion);
+    selectedTemplate.version = latestVersion;
     return {
       type: addType,
       name: addName,
