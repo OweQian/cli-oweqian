@@ -4,6 +4,10 @@ import createTemplate from "./createTemplate.js";
 import downloadTemplate from "./downloadTemplate.js";
 import installTemplate from "./installTemplate.js";
 
+/**
+ * cli-oweqian init --debug
+ * cli-oweqian init aa -t project -tp template-vue3 --force --debug
+ */
 class InitCommand extends Command {
   get command() {
     return "init [name]";
@@ -14,7 +18,11 @@ class InitCommand extends Command {
   }
 
   get options() {
-    return [["-f, --force", "是否强制更新", false]];
+    return [
+      ["-f, --force", "是否强制更新", false],
+      ["-t, --type <type>", "项目类型（值：project/page）"],
+      ["-tp, --template <template>", "模板名称"],
+    ];
   }
 
   async action([name, opts]) {

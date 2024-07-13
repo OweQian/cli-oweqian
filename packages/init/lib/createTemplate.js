@@ -67,14 +67,34 @@ function makeTargetPath() {
   return path.resolve(`${homedir()}/${TEMP_HOME}`, "addTemplate");
 }
 async function createTemplate(name, opts) {
-  const addType = await getAddType();
+  const { type = null, template = null } = opts;
+  let addType;
+  let addName;
+  let selectedTemplate;
+  if (type) {
+    addType = type;
+  } else {
+    addType = await getAddType();
+  }
   log.verbose("addType", addType);
   if (addType === ADD_TYPE_PROJECT) {
-    const addName = await getAddName();
+    if (name) {
+      addName = name;
+    } else {
+      addName = await getAddName();
+    }
     log.verbose("addName", addName);
-    const addTemplate = await getAddTemplate();
-    log.verbose("addTemplate", addTemplate);
-    const selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
+    if (template) {
+      selectedTemplate = ADD_TEMPLATE.find((tp) => tp.value === template);
+      if (!selectedTemplate) {
+        throw new Error(`项目模板 ${template} 不存在`);
+      }
+    } else {
+      let addTemplate = await getAddTemplate();
+      log.verbose("addTemplate", addTemplate);
+      selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
+    }
+
     log.verbose("selectedTemplate", selectedTemplate);
     // 获取最新版本号
     const latestVersion = await getLatestVersion(selectedTemplate.npmName);
@@ -87,6 +107,8 @@ async function createTemplate(name, opts) {
       template: selectedTemplate,
       targetPath,
     };
+  } else {
+    throw new Error(`类型 ${addType} 不支持`);
   }
 }
 
