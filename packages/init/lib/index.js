@@ -2,6 +2,7 @@ import Command from "@oweqian/command";
 import { log } from "@oweqian/utils";
 import createTemplate from "./createTemplate.js";
 import downloadTemplate from "./downloadTemplate.js";
+import installTemplate from "./installTemplate.js";
 
 class InitCommand extends Command {
   get command() {
@@ -20,7 +21,6 @@ class InitCommand extends Command {
     log.verbose("init", name, opts);
     /**
      * 1.选择项目模板，生成项目信息
-     * 3.安装项目模板至项目目录
      */
     const selectedTemplate = await createTemplate(name, opts);
     log.verbose("selectedTemplate", selectedTemplate);
@@ -28,6 +28,10 @@ class InitCommand extends Command {
      * 2.下载项目模版至缓存目录
      */
     await downloadTemplate(selectedTemplate);
+    /**
+     * 3.安装项目模板至项目目录
+     */
+    await installTemplate(selectedTemplate, opts);
   }
 
   preAction() {
