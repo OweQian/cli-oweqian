@@ -1,23 +1,16 @@
 import path from "node:path";
 import { homedir } from "node:os";
-import { makeList, log, makeInput, getLatestVersion } from "@oweqian/utils";
+import {
+  makeList,
+  log,
+  makeInput,
+  getLatestVersion,
+  request,
+  printErrorLog,
+} from "@oweqian/utils";
 
 const ADD_TYPE_PROJECT = "project";
 const ADD_TYPE_PAGE = "page";
-const ADD_TEMPLATE = [
-  {
-    name: "vue3项目模版",
-    value: "template-vue3",
-    npmName: "@oweqian/template-vue3",
-    version: "1.0.1",
-  },
-  {
-    name: "react18项目模版",
-    value: "template-react18",
-    npmName: "@oweqian/template-react18",
-    version: "1.0.1",
-  },
-];
 const ADD_TYPE = [
   {
     name: "项目",
@@ -54,9 +47,9 @@ function getAddName() {
 }
 
 // 选择项目模版
-function getAddTemplate() {
+function getAddTemplate(choices) {
   return makeList({
-    choices: ADD_TEMPLATE,
+    choices,
     message: "请选择项目模版",
   });
 }
@@ -66,7 +59,26 @@ function makeTargetPath() {
   console.log(homedir());
   return path.resolve(`${homedir()}/${TEMP_HOME}`, "addTemplate");
 }
+
+// 通过API获取项目模版
+async function getTemplateFromAPI() {
+  try {
+    const data = await request({
+      url: "/project/template",
+      method: "get",
+    });
+    log.verbose("template", data);
+    return data;
+  } catch (e) {
+    printErrorLog(e);
+    return null;
+  }
+}
 async function createTemplate(name, opts) {
+  const ADD_TEMPLATE = await getTemplateFromAPI();
+  if (!ADD_TEMPLATE) {
+    throw new Error("项目模板不存在");
+  }
   const { type = null, template = null } = opts;
   let addType;
   let addName;
@@ -90,7 +102,7 @@ async function createTemplate(name, opts) {
         throw new Error(`项目模板 ${template} 不存在`);
       }
     } else {
-      let addTemplate = await getAddTemplate();
+      let addTemplate = await getAddTemplate(ADD_TEMPLATE);
       log.verbose("addTemplate", addTemplate);
       selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
     }
