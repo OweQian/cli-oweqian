@@ -54,6 +54,13 @@ function getAddTemplate(choices) {
   });
 }
 
+// 选择所在团队
+function getAddTeam(team) {
+  return makeList({
+    choices: team.map((item) => ({ name: item, value: item })),
+    message: "请选择团队",
+  });
+}
 // 安装缓存目录
 function makeTargetPath() {
   console.log(homedir());
@@ -102,7 +109,14 @@ async function createTemplate(name, opts) {
         throw new Error(`项目模板 ${template} 不存在`);
       }
     } else {
-      let addTemplate = await getAddTemplate(ADD_TEMPLATE);
+      // 获取团队信息
+      let teamList = ADD_TEMPLATE.map((_) => _.team);
+      teamList = [...new Set(teamList)];
+      const addTeam = await getAddTeam(teamList);
+      log.verbose("addTeam", addTeam);
+      let addTemplate = await getAddTemplate(
+        ADD_TEMPLATE.filter((_) => _.team === addTeam)
+      );
       log.verbose("addTemplate", addTemplate);
       selectedTemplate = ADD_TEMPLATE.find((_) => _.value === addTemplate);
     }
