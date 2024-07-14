@@ -64,7 +64,7 @@ function makeTargetPath() {
 async function getTemplateFromAPI() {
   try {
     const data = await request({
-      url: "/project/template",
+      url: "/v1/project",
       method: "get",
     });
     log.verbose("template", data);
