@@ -63,7 +63,6 @@ function getAddTeam(team) {
 }
 // 安装缓存目录
 function makeTargetPath() {
-  console.log(homedir());
   return path.resolve(`${homedir()}/${TEMP_HOME}`, "addTemplate");
 }
 
