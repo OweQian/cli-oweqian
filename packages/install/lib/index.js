@@ -10,6 +10,8 @@ import {
 
 const PREV_PAGE = "${prev_page}";
 const NEXT_PAGE = "${next_page}";
+const SEARCH_MODE_REPO = "search_repo";
+const SEARCH_MODE_CODE = "search_code";
 
 class InstallCommand extends Command {
   get command() {
@@ -56,6 +58,24 @@ class InstallCommand extends Command {
   }
   async searchGitAPI() {
     // 1、收集搜索关键词和开发语言
+    const platform = this.gitAPI.getPlatform();
+    if (platform === "github") {
+      this.mode = await makeList({
+        message: "请选择搜索模式",
+        choices: [
+          {
+            name: "仓库",
+            value: SEARCH_MODE_REPO,
+          },
+          {
+            name: "源码",
+            value: SEARCH_MODE_CODE,
+          },
+        ],
+      });
+    } else {
+      this.mode = SEARCH_MODE_REPO;
+    }
     this.q = await makeInput({
       message: "请输入搜索关键词",
       validate(value) {
@@ -69,12 +89,8 @@ class InstallCommand extends Command {
     this.language = await makeInput({
       message: "请输入开发语言",
     });
-    log.verbose(
-      "search keyword",
-      this.q,
-      this.language,
-      this.gitAPI.getPlatform()
-    );
+    log.verbose("search keyword", this.q, this.language, platform);
+
     this.page = 1;
     this.perPage = 10;
     await this.doSearch();
@@ -96,14 +112,27 @@ class InstallCommand extends Command {
       };
       log.verbose("search params", params);
       // github
-      searchResult = await this.gitAPI.searchRepositories({
-        ...params,
-      });
+      if (this.mode === SEARCH_MODE_REPO) {
+        searchResult = await this.gitAPI.searchRepositories({
+          ...params,
+        });
+
+        list = searchResult.items.map((item) => ({
+          name: `${item.full_name}${item.description}`,
+          value: item.full_name,
+        }));
+      } else {
+        searchResult = await this.gitAPI.searchCode({
+          ...params,
+        });
+        list = searchResult.items.map((item) => ({
+          name: `${item.repository.full_name}${
+            item.repository && item.repository.description
+          }`,
+          value: item.repository.full_name,
+        }));
+      }
       count = searchResult.total_count; // 整体数据量
-      list = searchResult.items.map((item) => ({
-        name: `${item.full_name}${item.description}`,
-        value: item.full_name,
-      }));
     }
 
     // 判断当前页面是否已经到达最大页面
