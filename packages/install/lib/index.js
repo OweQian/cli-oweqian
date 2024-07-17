@@ -1,3 +1,4 @@
+import ora from "ora";
 import Command from "@oweqian/command";
 import {
   log,
@@ -6,6 +7,7 @@ import {
   makeList,
   makeInput,
   getGitPlatform,
+  printErrorLog,
 } from "@oweqian/utils";
 
 const PREV_PAGE = "${prev_page}";
@@ -28,6 +30,7 @@ class InstallCommand extends Command {
     await this.generateGitAPI();
     await this.searchGitAPI();
     await this.selectTags();
+    await this.downloadRepo();
     log.verbose("full_name", this.keyword);
     log.verbose("selected_tag", this.selectedTag);
   }
@@ -272,6 +275,22 @@ class InstallCommand extends Command {
   async prevTags() {
     this.tagPage--;
     await this.doSelectTags();
+  }
+
+  async downloadRepo() {
+    const spinner = ora(
+      `正在下载: ${this.keyword}${this.selectedTag}...`
+    ).start();
+    try {
+      const repoUrl = await this.gitAPI.getRepoUrl(this.keyword);
+      await this.gitAPI.cloneRepo(repoUrl, this.selectedTag);
+      setTimeout(() => {
+        spinner.stop();
+      }, 2000);
+    } catch (e) {
+      spinner.stop();
+      printErrorLog(e);
+    }
   }
 }
 

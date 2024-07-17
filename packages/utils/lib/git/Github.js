@@ -53,6 +53,10 @@ class Github extends GitServer {
     console.log(`/repos/${fullName}/tags`);
     return this.get(`/repos/${fullName}/tags`, params);
   }
+
+  getRepoUrl(fullName) {
+    return `https://github.com/${fullName}.git`;
+  }
 }
 
 export default Github;

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { execa } from "execa";
 import { pathExistsSync } from "path-exists";
 import fse from "fs-extra";
 import { homedir } from "node:os";
@@ -54,6 +55,14 @@ class GitServer {
 
   getPlatform() {
     return this.platform;
+  }
+
+  cloneRepo(repoUrl, tag) {
+    if (tag) {
+      console.log(repoUrl, tag);
+      return execa("git", ["clone", repoUrl, "-b", tag]);
+    }
+    return execa("git", ["clone", repoUrl]);
   }
 }
 
