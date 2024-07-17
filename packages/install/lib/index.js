@@ -27,7 +27,9 @@ class InstallCommand extends Command {
   async action() {
     await this.generateGitAPI();
     await this.searchGitAPI();
+    await this.selectTags();
   }
+
   async generateGitAPI() {
     let platform = getGitPlatform();
     if (!platform) {
@@ -56,6 +58,7 @@ class InstallCommand extends Command {
     await gitAPI.init();
     this.gitAPI = gitAPI;
   }
+
   async searchGitAPI() {
     // 1、收集搜索关键词和开发语言
     const platform = this.gitAPI.getPlatform();
@@ -160,7 +163,10 @@ class InstallCommand extends Command {
     }
 
     // 判断当前页面是否已经到达最大页面
-    if (this.page * this.perPage < count) {
+    if (
+      (platform === "github" && this.page * this.perPage < count) ||
+      list.length > 0
+    ) {
       list.push({
         name: "下一页",
         value: NEXT_PAGE,
@@ -200,6 +206,65 @@ class InstallCommand extends Command {
   async prevPage() {
     this.page--;
     await this.doSearch();
+  }
+
+  async selectTags() {
+    let tagsList;
+    this.tagPage = 1;
+    this.tagPerPage = 10;
+    if (this.gitAPI.getPlatform() === "github") {
+      tagsList = await this.doSelectTags();
+    } else {
+    }
+  }
+
+  async doSelectTags() {
+    const params = {
+      page: this.tagPage,
+      per_page: this.tagPage,
+    };
+    const tagsList = await this.gitAPI.getTags(this.keyword, { ...params });
+    const tagsListChoices = tagsList.map((item) => ({
+      name: item.name,
+      value: item.name,
+    }));
+
+    if (tagsListChoices.length > 0) {
+      tagsListChoices.push({
+        name: "下一页",
+        value: NEXT_PAGE,
+      });
+    }
+
+    if (this.tagPage > 1) {
+      tagsListChoices.unshift({
+        name: "上一页",
+        value: PREV_PAGE,
+      });
+    }
+
+    const selectedTag = await makeList({
+      message: "请选择tag",
+      choices: tagsListChoices,
+    });
+
+    if (selectedTag === NEXT_PAGE) {
+      await this.nextTags();
+    } else if (selectedTag === PREV_PAGE) {
+      await this.prevTags();
+    } else {
+      this.selectedTag = selectedTag;
+    }
+  }
+
+  async nextTags() {
+    this.tagPage++;
+    await this.doSelectTags();
+  }
+
+  async prevTags() {
+    this.tagPage--;
+    await this.doSelectTags();
   }
 }
 
