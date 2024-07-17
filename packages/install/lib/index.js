@@ -99,10 +99,11 @@ class InstallCommand extends Command {
   async doSearch() {
     const platform = this.gitAPI.getPlatform();
     let searchResult;
-    let count;
-    let list;
+    let count = 0;
+    let list = [];
     if (platform === "github") {
       // 2、生成搜索参数
+      // github
       const params = {
         q: `${this.q}${this.language ? `+language:${this.language}` : ""}`,
         order: "desc",
@@ -111,7 +112,7 @@ class InstallCommand extends Command {
         page: this.page,
       };
       log.verbose("search params", params);
-      // github
+
       if (this.mode === SEARCH_MODE_REPO) {
         searchResult = await this.gitAPI.searchRepositories({
           ...params,
@@ -133,6 +134,29 @@ class InstallCommand extends Command {
         }));
       }
       count = searchResult.total_count; // 整体数据量
+    } else {
+      // 2、生成搜索参数
+      // gitee
+      const params = {
+        q: this.q,
+        order: "desc",
+        sort: "stars_count",
+        per_page: this.perPage,
+        page: this.page,
+      };
+      log.verbose("search params", params);
+      if (this.language) {
+        params.language = this.language;
+      }
+      searchResult = await this.gitAPI.searchRepositories({
+        ...params,
+      });
+      console.log(searchResult);
+      count = 999;
+      list = searchResult.map((item) => ({
+        name: `${item.full_name}${item.description}`,
+        value: item.full_name,
+      }));
     }
 
     // 判断当前页面是否已经到达最大页面
@@ -148,19 +172,24 @@ class InstallCommand extends Command {
         value: PREV_PAGE,
       });
     }
-    const keyword = await makeList({
-      message: `请选择要下载的项目（共${count}条数据）`,
-      choices: list,
-    });
+    if (count > 0) {
+      const keyword = await makeList({
+        message:
+          platform === "github"
+            ? `请选择要下载的项目（共${count}条数据）`
+            : "请选择要下载的项目",
+        choices: list,
+      });
 
-    if (keyword === NEXT_PAGE) {
-      await this.nextPage();
-    } else if (keyword === PREV_PAGE) {
-      await this.prevPage();
-    } else {
-      // 下载项目
+      if (keyword === NEXT_PAGE) {
+        await this.nextPage();
+      } else if (keyword === PREV_PAGE) {
+        await this.prevPage();
+      } else {
+        // 下载项目
+        this.keyword = keyword;
+      }
     }
-    console.log(keyword);
   }
 
   async nextPage() {
