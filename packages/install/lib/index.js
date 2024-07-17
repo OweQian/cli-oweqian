@@ -30,9 +30,12 @@ class InstallCommand extends Command {
     await this.generateGitAPI();
     await this.searchGitAPI();
     await this.selectTags();
-    await this.downloadRepo();
+
     log.verbose("full_name", this.keyword);
     log.verbose("selected_tag", this.selectedTag);
+    await this.downloadRepo();
+    await this.installDependencies();
+    await this.runRepo();
   }
 
   async generateGitAPI() {
@@ -115,7 +118,7 @@ class InstallCommand extends Command {
       const params = {
         q: `${this.q}${this.language ? `+language:${this.language}` : ""}`,
         order: "desc",
-        sort: "stars",
+        // sort: "stars",
         per_page: this.perPage,
         page: this.page,
       };
@@ -148,7 +151,7 @@ class InstallCommand extends Command {
       const params = {
         q: this.q,
         order: "desc",
-        sort: "stars_count",
+        // sort: "stars_count",
         per_page: this.perPage,
         page: this.page,
       };
@@ -282,8 +285,7 @@ class InstallCommand extends Command {
       `正在下载: ${this.keyword}${this.selectedTag}...`
     ).start();
     try {
-      const repoUrl = await this.gitAPI.getRepoUrl(this.keyword);
-      await this.gitAPI.cloneRepo(repoUrl, this.selectedTag);
+      await this.gitAPI.cloneRepo(this.keyword, this.selectedTag);
       setTimeout(() => {
         spinner.stop();
       }, 2000);
@@ -291,6 +293,29 @@ class InstallCommand extends Command {
       spinner.stop();
       printErrorLog(e);
     }
+  }
+
+  async installDependencies() {
+    const spinner = ora(
+      `正在安装依赖: ${this.keyword}${this.selectedTag}...`
+    ).start();
+    try {
+      await this.gitAPI.installDependencies(
+        process.cwd(),
+        this.keyword,
+        this.selectedTag
+      );
+      setTimeout(() => {
+        spinner.stop();
+      }, 2000);
+    } catch (e) {
+      spinner.stop();
+      printErrorLog(e);
+    }
+  }
+
+  async runRepo() {
+    await this.gitAPI.runRepo(process.cwd(), this.keyword);
   }
 }
 
