@@ -28,6 +28,8 @@ class InstallCommand extends Command {
     await this.generateGitAPI();
     await this.searchGitAPI();
     await this.selectTags();
+    log.verbose("full_name", this.keyword);
+    log.verbose("selected_tag", this.selectedTag);
   }
 
   async generateGitAPI() {
@@ -209,38 +211,43 @@ class InstallCommand extends Command {
   }
 
   async selectTags() {
-    let tagsList;
     this.tagPage = 1;
     this.tagPerPage = 10;
-    if (this.gitAPI.getPlatform() === "github") {
-      tagsList = await this.doSelectTags();
-    } else {
-    }
+    await this.doSelectTags();
   }
 
   async doSelectTags() {
-    const params = {
-      page: this.tagPage,
-      per_page: this.tagPage,
-    };
-    const tagsList = await this.gitAPI.getTags(this.keyword, { ...params });
-    const tagsListChoices = tagsList.map((item) => ({
-      name: item.name,
-      value: item.name,
-    }));
+    const platform = this.gitAPI.getPlatform();
+    let tagsListChoices = [];
+    if (platform === "github") {
+      const params = {
+        page: this.tagPage,
+        per_page: this.tagPerPage,
+      };
+      const tagsList = await this.gitAPI.getTags(this.keyword, { ...params });
+      tagsListChoices = tagsList.map((item) => ({
+        name: item.name,
+        value: item.name,
+      }));
+      if (tagsListChoices.length > 0) {
+        tagsListChoices.push({
+          name: "下一页",
+          value: NEXT_PAGE,
+        });
+      }
 
-    if (tagsListChoices.length > 0) {
-      tagsListChoices.push({
-        name: "下一页",
-        value: NEXT_PAGE,
-      });
-    }
-
-    if (this.tagPage > 1) {
-      tagsListChoices.unshift({
-        name: "上一页",
-        value: PREV_PAGE,
-      });
+      if (this.tagPage > 1) {
+        tagsListChoices.unshift({
+          name: "上一页",
+          value: PREV_PAGE,
+        });
+      }
+    } else {
+      const tagList = await this.gitAPI.getTags(this.keyword);
+      tagsListChoices = tagsList.map((item) => ({
+        name: item.name,
+        value: item.name,
+      }));
     }
 
     const selectedTag = await makeList({

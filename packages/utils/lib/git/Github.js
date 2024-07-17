@@ -50,6 +50,7 @@ class Github extends GitServer {
   }
 
   getTags(fullName, params) {
+    console.log(`/repos/${fullName}/tags`);
     return this.get(`/repos/${fullName}/tags`, params);
   }
 }
