@@ -38,3 +38,10 @@ export function makeInput(params) {
     type: "input",
   });
 }
+
+export function makePassword(params) {
+  return make({
+    ...params,
+    type: "password",
+  });
+}
