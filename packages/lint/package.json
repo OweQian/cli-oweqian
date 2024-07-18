@@ -1,7 +1,7 @@
 {
-  "name": "@oweqian/install",
+  "name": "@oweqian/lint",
   "version": "0.0.0",
-  "description": "install command",
+  "description": "lint command",
   "author": "qian wang <1510106069@qq.com>",
   "homepage": "",
   "license": "ISC",
@@ -14,12 +14,18 @@
     "lib"
   ],
   "scripts": {
-    "test": "node ./__tests__/install.test.js"
+    "test": "node ./__tests__/lint.test.js"
   },
   "type": "module",
   "dependencies": {
-    "@oweqian/utils": "^0.0.0",
     "@oweqian/command": "^0.0.0",
-    "ora": "^6.1.2"
+    "@oweqian/utils": "^0.0.0",
+    "eslint": "^8.28.0",
+    "execa": "^6.1.0",
+    "fs-extra": "^10.1.0",
+    "jest": "^29.3.1",
+    "mocha": "^10.1.0",
+    "ora": "^6.1.2",
+    "path-exists": "^5.0.0"
   }
 }

@@ -4,7 +4,7 @@ import { pathExistsSync } from "path-exists";
 import { log, makeInput, makeList } from "@oweqian/utils";
 import ora from "ora";
 import ejs from "ejs";
-import { glob } from "glob";
+import glob from "glob";
 
 function getCacheFilePath(targetPath, template) {
   return path.resolve(targetPath, "node_modules", template.npmName, "template");
