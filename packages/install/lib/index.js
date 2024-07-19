@@ -2,11 +2,9 @@ import ora from "ora";
 import Command from "@oweqian/command";
 import {
   log,
-  Github,
-  Gitee,
   makeList,
   makeInput,
-  getGitPlatform,
+  initGitServer,
   printErrorLog,
 } from "@oweqian/utils";
 
@@ -39,32 +37,7 @@ class InstallCommand extends Command {
   }
 
   async generateGitAPI() {
-    let platform = getGitPlatform();
-    if (!platform) {
-      platform = await makeList({
-        message: "请选择Git平台",
-        choices: [
-          {
-            name: "Github",
-            value: "github",
-          },
-          {
-            name: "Gitee",
-            value: "gitee",
-          },
-        ],
-      });
-    }
-    log.verbose("platform", platform);
-    let gitAPI;
-    if (platform === "github") {
-      gitAPI = new Github();
-    } else {
-      gitAPI = new Gitee();
-    }
-    gitAPI.savePlatform(platform);
-    await gitAPI.init();
-    this.gitAPI = gitAPI;
+    this.gitAPI = await initGitServer();
   }
 
   async searchGitAPI() {

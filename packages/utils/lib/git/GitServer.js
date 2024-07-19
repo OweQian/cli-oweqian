@@ -25,6 +25,7 @@ function getGitPlatform() {
   }
   return null;
 }
+
 class GitServer {
   constructor() {}
 
@@ -105,6 +106,14 @@ class GitServer {
       }
     }
   }
+
+  getUser() {
+    throw new Error("gitUser must be implemented!");
+  }
+
+  getOrganization() {
+    throw new Error("getOrganization must be implemented!");
+  }
 }
 
 function getPackageJson(cwd, fullName) {
@@ -121,4 +130,13 @@ function getProjectPath(cwd, fullName) {
   const projectPath = path.resolve(cwd, projectName);
   return projectPath;
 }
-export { getGitPlatform, GitServer };
+
+function clearCache() {
+  const temp = path.resolve(homedir(), TEMP_HOME);
+  const platform = path.resolve(temp, TEMP_PLATFORM);
+  const token = path.resolve(temp, TEMP_TOKEN);
+  fse.removeSync(platform);
+  fse.removeSync(token);
+}
+
+export { getGitPlatform, GitServer, clearCache };

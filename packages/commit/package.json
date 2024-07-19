@@ -1,0 +1,25 @@
+{
+  "name": "@oweqian/commit",
+  "version": "0.0.0",
+  "description": "commit command",
+  "author": "qian wang <1510106069@qq.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "node ./__tests__/commit.test.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "@oweqian/utils": "^0.0.0",
+    "path-exists": "^5.0.0",
+    "fs-extra": "^10.1.0"
+  }
+}
