@@ -1,4 +1,4 @@
-import { getGitPlatform } from "./GitServer.js";
+import { getGitPlatform, getGitLogin, getGitOwn } from "./GitServer.js";
 import { makeList } from "../inquirer.js";
 import log from "../log.js";
 import Gitee from "./Gitee.js";
@@ -34,34 +34,38 @@ export async function initGitServer() {
 }
 
 export async function initGitType(gitAPI) {
-  const user = await gitAPI.getUser();
-  const organization = await gitAPI.getOrganization();
-  console.log(user, organization);
-  // 让用户选择仓库类型
   // 仓库类型
-  let gitOwn;
+  let gitOwn = getGitOwn();
   // 仓库登录名
-  let gitLogin;
-  if (!gitOwn) {
-    gitOwn = await makeList({
-      message: "请选择仓库类型",
-      choices: [
-        {
-          name: "User",
-          value: "user",
-        },
-        {
-          name: "Organization",
-          value: "organization",
-        },
-      ],
-    });
-    log.verbose("gitOwn", gitOwn);
+  let gitLogin = getGitLogin();
+
+  if (!gitLogin && !gitOwn) {
+    const user = await gitAPI.getUser();
+    const organization = await gitAPI.getOrganization();
+    log.verbose("user", user);
+    log.verbose("organization", organization);
+    // 让用户选择仓库类型
+    if (!gitOwn) {
+      gitOwn = await makeList({
+        message: "请选择仓库类型",
+        choices: [
+          {
+            name: "User",
+            value: "user",
+          },
+          {
+            name: "Organization",
+            value: "organization",
+          },
+        ],
+      });
+      log.verbose("gitOwn", gitOwn);
+    }
     if (gitOwn === "user") {
       gitLogin = user?.login;
     } else {
       const organizationList = organization.map((item) => ({
-        name: item.login,
+        name: item.name || item.login,
         value: item.login,
       }));
       gitLogin = await makeList({
@@ -70,8 +74,18 @@ export async function initGitType(gitAPI) {
       });
     }
     log.verbose("gitLogin", gitLogin);
-    if (!gitLogin) {
-      throw new Error("未获取到用户的Git登录名");
-    }
   }
+  if (!gitLogin || !gitOwn) {
+    throw new Error(
+      '未获取到用户的Git登录信息！请使用"cli-oweqian commit --clear"清除缓存后重试'
+    );
+  }
+  gitAPI.saveOwn(gitOwn);
+  gitAPI.saveLogin(gitLogin);
+  return gitLogin;
+}
+
+export async function createRemotoRepo(gitAPI, name) {
+  const ret = await gitAPI.createRepo(name);
+  console.log(ret);
 }

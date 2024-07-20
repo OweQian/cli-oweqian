@@ -7,8 +7,10 @@ import { makePassword } from "../inquirer.js";
 import log from "../log.js";
 
 const TEMP_HOME = ".cli-oweqian";
-const TEMP_TOKEN = ".token";
+const TEMP_TOKEN = ".git_token";
 const TEMP_PLATFORM = ".git_platform";
+const TEMP_OWN = ".git_own";
+const TEMP_LOGIN = ".git_login";
 
 function createTokenPath() {
   return path.resolve(homedir(), TEMP_HOME, TEMP_TOKEN);
@@ -18,12 +20,34 @@ function createPlatformPath() {
   return path.resolve(homedir(), TEMP_HOME, TEMP_PLATFORM);
 }
 
+function createOwnPath() {
+  return path.resolve(homedir(), TEMP_HOME, TEMP_OWN);
+}
+
+function createLoginPath() {
+  return path.resolve(homedir(), TEMP_HOME, TEMP_LOGIN);
+}
+
 function getGitPlatform() {
   const platformPath = createPlatformPath();
   if (pathExistsSync(platformPath)) {
     return fse.readFileSync(platformPath).toString();
   }
   return null;
+}
+
+function getGitOwn() {
+  const ownPath = createOwnPath();
+  if (pathExistsSync(ownPath)) {
+    return fse.readFileSync(ownPath).toString();
+  }
+}
+
+function getGitLogin() {
+  const loginPath = createLoginPath();
+  if (pathExistsSync(loginPath)) {
+    return fse.readFileSync(loginPath).toString();
+  }
 }
 
 class GitServer {
@@ -54,8 +78,26 @@ class GitServer {
     fse.writeFileSync(createPlatformPath(), platform);
   }
 
+  saveOwn(own) {
+    this.own = own;
+    fse.writeFileSync(createOwnPath(), own);
+  }
+
+  saveLogin(login) {
+    this.login = login;
+    fse.writeFileSync(createLoginPath(), login);
+  }
+
   getPlatform() {
     return this.platform;
+  }
+
+  getOwn() {
+    return this.own;
+  }
+
+  getLogin() {
+    return this.login;
   }
 
   cloneRepo(fullName, tag) {
@@ -114,6 +156,10 @@ class GitServer {
   getOrganization() {
     throw new Error("getOrganization must be implemented!");
   }
+
+  createRepo() {
+    throw new Error("createRepo must be implemented!");
+  }
 }
 
 function getPackageJson(cwd, fullName) {
@@ -132,11 +178,14 @@ function getProjectPath(cwd, fullName) {
 }
 
 function clearCache() {
-  const temp = path.resolve(homedir(), TEMP_HOME);
-  const platform = path.resolve(temp, TEMP_PLATFORM);
-  const token = path.resolve(temp, TEMP_TOKEN);
+  const platform = createPlatformPath();
+  const token = createTokenPath();
+  const own = createOwnPath();
+  const login = createLoginPath();
   fse.removeSync(platform);
   fse.removeSync(token);
+  fse.removeSync(own);
+  fse.removeSync(login);
 }
 
-export { getGitPlatform, GitServer, clearCache };
+export { getGitPlatform, GitServer, clearCache, getGitOwn, getGitLogin };

@@ -1,5 +1,13 @@
 import Command from "@oweqian/command";
-import { log, initGitType, initGitServer, clearCache } from "@oweqian/utils";
+import path from "node:path";
+import fse from "fs-extra";
+import {
+  log,
+  initGitType,
+  initGitServer,
+  clearCache,
+  createRemotoRepo,
+} from "@oweqian/utils";
 
 class CommitCommand extends Command {
   get command() {
@@ -29,6 +37,11 @@ class CommitCommand extends Command {
     this.gitAPI = await initGitServer();
     // 2、仓库类型选择
     await initGitType(this.gitAPI);
+    // 3、创建远程仓库
+    // 获取项目名称
+    const dir = process.cwd();
+    const pkg = fse.readJSONSync(path.resolve(dir, "package.json"));
+    await createRemotoRepo(this.gitAPI, pkg.name);
   }
 }
 

@@ -7,7 +7,11 @@ import request from "./request.js";
 import Github from "./git/Github.js";
 import Gitee from "./git/Gitee.js";
 import { getGitPlatform, clearCache } from "./git/GitServer.js";
-import { initGitServer, initGitType } from "./git/GitUtils.js";
+import {
+  initGitServer,
+  initGitType,
+  createRemotoRepo,
+} from "./git/GitUtils.js";
 
 export {
   log,
@@ -24,4 +28,5 @@ export {
   initGitServer,
   initGitType,
   clearCache,
+  createRemotoRepo,
 };
