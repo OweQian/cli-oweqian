@@ -1,6 +1,7 @@
 import Command from "@oweqian/command";
 import path from "node:path";
 import fse from "fs-extra";
+import { pathExistsSync } from "path-exists";
 import {
   log,
   initGitType,
@@ -42,6 +43,37 @@ class CommitCommand extends Command {
     const dir = process.cwd();
     const pkg = fse.readJSONSync(path.resolve(dir, "package.json"));
     await createRemotoRepo(this.gitAPI, pkg.name);
+    // 4、生成.gitignore
+    const gitIgnorePath = path.resolve(dir, ".gitignore");
+    if (!pathExistsSync(gitIgnorePath)) {
+      log.info(".gitignore不存在，开始创建");
+      fse.writeFileSync(
+        gitIgnorePath,
+        `.DS_Store
+      node_modules
+      /dist
+      
+      
+      # local env files
+      .env.local
+      .env.*.local
+      
+      # Log files
+      npm-debug.log*
+      yarn-debug.log*
+      yarn-error.log*
+      pnpm-debug.log*
+      
+      # Editor directories and files
+      .idea
+      .vscode
+      *.suo
+      *.ntvs*
+      *.njsproj
+      *.sln
+      *.sw?`
+      );
+    }
   }
 }
 
