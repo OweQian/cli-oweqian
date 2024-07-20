@@ -87,5 +87,4 @@ export async function initGitType(gitAPI) {
 
 export async function createRemotoRepo(gitAPI, name) {
   const ret = await gitAPI.createRepo(name);
-  console.log(ret);
 }

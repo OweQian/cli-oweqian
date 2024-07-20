@@ -28,8 +28,8 @@ class CommitCommand extends Command {
     if (clear) {
       clearCache();
     }
-    // 获取用户主目录
     await this.createRomoteRepo();
+    await this.initLocal();
   }
 
   // 阶段 1、创建远程仓库
@@ -42,7 +42,8 @@ class CommitCommand extends Command {
     // 获取项目名称
     const dir = process.cwd();
     const pkg = fse.readJSONSync(path.resolve(dir, "package.json"));
-    await createRemotoRepo(this.gitAPI, pkg.name);
+    this.name = pkg.name;
+    await createRemotoRepo(this.gitAPI, this.name);
     // 4、生成.gitignore
     const gitIgnorePath = path.resolve(dir, ".gitignore");
     if (!pathExistsSync(gitIgnorePath)) {
@@ -74,6 +75,15 @@ class CommitCommand extends Command {
       *.sw?`
       );
     }
+  }
+
+  // 阶段 2、git本地初始化
+  async initLocal() {
+    // 生成 git remote 地址
+    const remoteUrl = this.gitAPI.getRepoUrl(
+      `${this.gitAPI.login}/${this.name}`
+    );
+    console.log(remoteUrl);
   }
 }
 
