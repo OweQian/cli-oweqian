@@ -8,5 +8,6 @@ if (isDebug()) {
 }
 
 log.heading = "oweqian";
+log.addLevel("success", 2000, { fg: "green", bold: true });
 
 export default log;
