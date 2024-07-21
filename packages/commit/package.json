@@ -19,7 +19,9 @@
   "type": "module",
   "dependencies": {
     "@oweqian/utils": "^0.0.0",
+    "fs-extra": "^10.1.0",
     "path-exists": "^5.0.0",
-    "fs-extra": "^10.1.0"
+    "semver": "^7.3.8",
+    "simple-git": "^3.15.1"
   }
 }
