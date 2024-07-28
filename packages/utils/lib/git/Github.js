@@ -7,10 +7,13 @@ const BASE_URL = "https://api.github.com";
 class Github extends GitServer {
   constructor() {
     super();
+
     this.service = axios.create({
       baseURL: BASE_URL,
       timeout: 50000,
     });
+
+    // 请求拦截器
     this.service.interceptors.request.use(
       (config) => {
         config.headers["Authorization"] = `Bearer ${this.token}`;
@@ -21,6 +24,8 @@ class Github extends GitServer {
         return Promise.reject(error);
       }
     );
+
+    // 响应拦截器
     this.service.interceptors.response.use(
       (response) => {
         return response.data;
@@ -31,6 +36,7 @@ class Github extends GitServer {
     );
   }
 
+  // 封装 get 方法
   get(url, params, headers) {
     return this.service({
       url,
@@ -40,6 +46,7 @@ class Github extends GitServer {
     });
   }
 
+  // 封装 post 方法
   post(url, data, headers) {
     return this.service({
       url,
@@ -49,21 +56,24 @@ class Github extends GitServer {
     });
   }
 
+  // 搜索仓库
   searchRepositories(params) {
     return this.get("/search/repositories", params);
   }
 
+  // 搜索源码
   searchCode(params) {
     return this.get("/search/code", params);
   }
 
+  // 获取 tags
   getTags(fullName, params) {
     console.log(`/repos/${fullName}/tags`);
     return this.get(`/repos/${fullName}/tags`, params);
   }
 
   getRepoUrl(fullName) {
-    return `git@github.com:${fullName}.git`; // ssh
+    return `https://github.com/${fullName}.git`;
   }
 
   getUser() {
@@ -74,9 +84,9 @@ class Github extends GitServer {
     return this.get("/user/orgs");
   }
 
-  getRepo(owner, repo) {
+  getRepo(login, repo) {
     return this.get(
-      `/repos/${owner}/${repo}`,
+      `/repos/${login}/${repo}`,
       {},
       {
         accept: "application/vnd.github+json",

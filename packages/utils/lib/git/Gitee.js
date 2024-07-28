@@ -7,10 +7,13 @@ const BASE_URL = "https://gitee.com/api/v5";
 class Gitee extends GitServer {
   constructor() {
     super();
+
     this.service = axios.create({
       baseURL: BASE_URL,
       timeout: 50000,
     });
+
+    // 响应拦截器
     this.service.interceptors.response.use(
       (response) => {
         return response.data;
@@ -21,6 +24,7 @@ class Gitee extends GitServer {
     );
   }
 
+  // 封装 get 方法
   get(url, params, headers) {
     return this.service({
       url,
@@ -33,6 +37,7 @@ class Gitee extends GitServer {
     });
   }
 
+  // 封装 post 方法
   post(url, data, headers) {
     return this.service({
       url,
@@ -45,10 +50,12 @@ class Gitee extends GitServer {
     });
   }
 
+  // 搜索仓库
   searchRepositories(params) {
     return this.get("/search/repositories", params);
   }
 
+  // 获取 tags
   getTags(fullName) {
     return this.get(`/repos/${fullName}/tags`);
   }

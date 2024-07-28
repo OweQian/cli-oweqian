@@ -4,11 +4,14 @@ import log from "../log.js";
 import Gitee from "./Gitee.js";
 import Github from "./Github.js";
 
+/**
+ * 实例化 GitServer 对象、git 托管平台、git token
+ */
 export async function initGitServer() {
   let platform = getGitPlatform();
   if (!platform) {
     platform = await makeList({
-      message: "请选择Git平台",
+      message: "请选择 Git 平台",
       choices: [
         {
           name: "Github",
@@ -22,6 +25,7 @@ export async function initGitServer() {
     });
   }
   log.verbose("platform", platform);
+
   let gitAPI;
   if (platform === "github") {
     gitAPI = new Github();
@@ -33,10 +37,13 @@ export async function initGitServer() {
   return gitAPI;
 }
 
+/**
+ * git 平台用户信息、git 平台组织信息
+ */
 export async function initGitType(gitAPI) {
-  // 仓库类型
+  // 用户信息
   let gitOwn = getGitOwn();
-  // 仓库登录名
+  // 组织信息
   let gitLogin = getGitLogin();
 
   if (!gitLogin && !gitOwn) {
@@ -44,7 +51,8 @@ export async function initGitType(gitAPI) {
     const organization = await gitAPI.getOrganization();
     log.verbose("user", user);
     log.verbose("organization", organization);
-    // 让用户选择仓库类型
+
+    // 选择仓库类型
     if (!gitOwn) {
       gitOwn = await makeList({
         message: "请选择仓库类型",
@@ -61,6 +69,7 @@ export async function initGitType(gitAPI) {
       });
       log.verbose("gitOwn", gitOwn);
     }
+
     if (gitOwn === "user") {
       gitLogin = user?.login;
     } else {
@@ -75,11 +84,13 @@ export async function initGitType(gitAPI) {
     }
     log.verbose("gitLogin", gitLogin);
   }
+
   if (!gitLogin || !gitOwn) {
     throw new Error(
-      '未获取到用户的Git登录信息！请使用"cli-oweqian commit --clear"清除缓存后重试'
+      '未获取到用户的 Git 登录信息！请使用 "cli-oweqian commit --clear" 清除缓存后重试'
     );
   }
+
   gitAPI.saveOwn(gitOwn);
   gitAPI.saveLogin(gitLogin);
   return gitLogin;

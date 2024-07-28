@@ -40,6 +40,7 @@ class LintCommand extends Command {
   }
 
   parseESLintResult(resultText) {
+    // eslint 检查结果分类
     const problems = this.extractESLint(resultText, "problems");
     const errors = this.extractESLint(resultText, "errors");
     const warnings = this.extractESLint(resultText, "warnings");
@@ -55,11 +56,14 @@ class LintCommand extends Command {
     // 1、eslint
     // 准备工作，安装依赖
     const spinner = ora("正在安装依赖...").start();
+
     try {
+      // 安装 eslint-plugin-vue@9.8.0
       await execa("npm", ["install", "-D", "eslint-plugin-vue@9.8.0"], {
         cwd,
         stdout: "inherit",
       });
+      // 安装 eslint-config-airbnb-base@15.0.0
       await execa(
         "npm",
         ["install", "-D", "eslint-config-airbnb-base@15.0.0"],
@@ -73,23 +77,34 @@ class LintCommand extends Command {
     } finally {
       spinner.stop();
     }
-    log.info("正在执行eslint检查");
+
+    log.info("正在执行 eslint 检查");
+
     // 执行工作，eslint
     const eslint = new ESLint({ cwd, overrideConfig: vueConfig });
+    // 匹配 src 下的所有 js、vue 文件
     const results = await eslint.lintFiles(["./src/**/*.js", "./src/**/*.vue"]);
     const formatter = await eslint.loadFormatter("stylish");
     const resultText = formatter.format(results);
     const eslintResult = this.parseESLintResult(resultText);
-    console.log(eslintResult);
+
     log.verbose("eslintResult", eslintResult);
+    log.success(
+      "eslint检查完毕",
+      "问题: " + eslintResult.problems,
+      "，错误: " + eslintResult.errors,
+      "，警告: " + eslintResult.warnings
+    );
   }
 
   async autoTest() {
     const cwd = process.cwd();
+
     // 执行自动化测试前，让用户选择采用哪种方式进行测试
     let testMode;
-    const oweqianConfigFile = path.resolve(cwd, TEMP_HOME);
     let config;
+    // 读取缓存文件，获取 testMode
+    const oweqianConfigFile = path.resolve(cwd, TEMP_HOME);
     if (pathExistsSync(oweqianConfigFile)) {
       config = fse.readJSONSync(oweqianConfigFile);
       testMode = config.testMode;
@@ -104,7 +119,6 @@ class LintCommand extends Command {
         config.testMode = testMode;
         fse.writeJsonSync(oweqianConfigFile, config);
       }
-      console.log(config);
     } else {
       testMode = await makeList({
         message: "请选择自动化测试方法",
@@ -117,23 +131,27 @@ class LintCommand extends Command {
         testMode,
       });
     }
+
     if (testMode === "jest") {
       // 2、jest
       log.info("自动执行jest测试");
       await jest.run("test");
+      log.success("jest测试执行完毕");
     } else {
       // 3、mocha
       log.info("自动执行mocha测试");
       const mochaInstance = new Mocha();
       mochaInstance.addFile(path.resolve(cwd, "__tests__/mocha_test.js"));
       mochaInstance.run(() => {
-        console.log("mocha测试执行完毕");
+        log.success("mocha测试执行完毕");
       });
     }
   }
+
   async action() {
-    log.verbose("lint");
+    // 代码规范检查
     await this.eslint();
+    // 自动化测试
     await this.autoTest();
   }
 }

@@ -7,9 +7,13 @@ import { makePassword } from "../inquirer.js";
 import log from "../log.js";
 
 const TEMP_HOME = ".cli-oweqian";
+// 缓存 git token
 const TEMP_TOKEN = ".git_token";
+// 缓存 git 托管平台信息
 const TEMP_PLATFORM = ".git_platform";
+// 缓存 git 平台用户信息
 const TEMP_OWN = ".git_own";
+// 缓存 git 平台组织信息
 const TEMP_LOGIN = ".git_login";
 
 function createTokenPath() {
@@ -50,13 +54,45 @@ function getGitLogin() {
   }
 }
 
+function getProjectPath(cwd, fullName) {
+  const projectName = fullName.split("/")[1];
+  const projectPath = path.resolve(cwd, projectName);
+  return projectPath;
+}
+
+function getPackageJson(cwd, fullName) {
+  const projectPath = getProjectPath(cwd, fullName);
+  const pkgPath = path.resolve(projectPath, "package.json");
+  if (pathExistsSync(pkgPath)) {
+    return fse.readJSONSync(pkgPath);
+  }
+  return null;
+}
+
+/**
+ * 清除缓存
+ */
+function clearCache() {
+  const platform = createPlatformPath();
+  const token = createTokenPath();
+  const own = createOwnPath();
+  const login = createLoginPath();
+  fse.removeSync(platform);
+  fse.removeSync(token);
+  fse.removeSync(own);
+  fse.removeSync(login);
+}
+
+/**
+ * 封装 GitServer 类
+ */
 class GitServer {
   constructor() {}
 
+  // 初始化
   async init() {
-    // 判断token是否存在
+    // 判断 git token 是否存在
     const tokenPath = createTokenPath();
-    console.log(tokenPath);
     if (pathExistsSync(tokenPath)) {
       this.token = fse.readFileSync(tokenPath).toString();
     } else {
@@ -100,6 +136,7 @@ class GitServer {
     return this.login;
   }
 
+  // 克隆仓库
   cloneRepo(fullName, tag) {
     if (tag) {
       return execa("git", ["clone", this.getRepoUrl(fullName), "-b", tag]);
@@ -107,6 +144,7 @@ class GitServer {
     return execa("git", ["clone", this.getRepoUrl(fullName)]);
   }
 
+  // 安装依赖
   installDependencies(cwd, fullName) {
     const projectPath = getProjectPath(cwd, fullName);
     if (pathExistsSync(projectPath)) {
@@ -118,11 +156,14 @@ class GitServer {
     }
   }
 
+  // 启动项目
   async runRepo(cwd, fullName) {
     const projectPath = getProjectPath(cwd, fullName);
     const pkg = getPackageJson(cwd, fullName);
+
     if (pkg) {
       const { scripts, bin, name } = pkg;
+      // 可执行文件（：脚手架
       if (bin) {
         await execa(
           "npm",
@@ -133,6 +174,8 @@ class GitServer {
           }
         );
       }
+
+      // 项目
       if (scripts && scripts.dev) {
         return execa("npm", ["run", "dev"], {
           cwd: projectPath,
@@ -160,32 +203,6 @@ class GitServer {
   createRepo() {
     throw new Error("createRepo must be implemented!");
   }
-}
-
-function getPackageJson(cwd, fullName) {
-  const projectPath = getProjectPath(cwd, fullName);
-  const pkgPath = path.resolve(projectPath, "package.json");
-  if (pathExistsSync(pkgPath)) {
-    return fse.readJSONSync(pkgPath);
-  }
-  return null;
-}
-
-function getProjectPath(cwd, fullName) {
-  const projectName = fullName.split("/")[1];
-  const projectPath = path.resolve(cwd, projectName);
-  return projectPath;
-}
-
-function clearCache() {
-  const platform = createPlatformPath();
-  const token = createTokenPath();
-  const own = createOwnPath();
-  const login = createLoginPath();
-  fse.removeSync(platform);
-  fse.removeSync(token);
-  fse.removeSync(own);
-  fse.removeSync(login);
 }
 
 export { getGitPlatform, GitServer, clearCache, getGitOwn, getGitLogin };

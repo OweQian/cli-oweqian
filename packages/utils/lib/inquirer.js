@@ -25,13 +25,16 @@ function make({
   if (type === "list") {
     options.choices = choices;
   }
+
   return inquirer.prompt(options).then((answer) => answer.name);
 }
 
+// list
 export function makeList(params) {
   return make({ ...params });
 }
 
+// input
 export function makeInput(params) {
   return make({
     ...params,
@@ -39,6 +42,7 @@ export function makeInput(params) {
   });
 }
 
+// password
 export function makePassword(params) {
   return make({
     ...params,

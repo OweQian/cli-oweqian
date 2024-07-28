@@ -1,5 +1,5 @@
-import log from "./log.js";
 import isDebug from "./isDebug.js";
+import log from "./log.js";
 import printErrorLog from "./printErrorLog.js";
 import { makeList, makeInput, makePassword } from "./inquirer.js";
 import { getLatestVersion } from "./npm.js";

@@ -1,6 +1,9 @@
 import log from "npmlog";
 import isDebug from "./isDebug.js";
 
+/**
+ * 打印日志
+ */
 if (isDebug()) {
   log.level = "verbose";
 } else {
